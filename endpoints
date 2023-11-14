@@ -1,0 +1,25 @@
+Usuário
+	/criar
+	/listar-todos
+	/buscar/{id}
+	
+	/deletar/{id}
+	/atualizar-dados/{id}
+	/atualizar-senha/{id}
+	/login
+Produto
+	/criar
+	/listar-todos
+	/buscar/{id}
+	/deletar/{id}
+	/atualizar-dados/{id}
+Carrinho
+	/criar {id-usuario} e {id-produto e qtd}
+	/atualizar/{id} --> {id-produto e qtd}
+	/deletar/{id} --> {id-produto}
+	/listar-produtos/{id}
+Compra
+	/realizar-compra {id-carrinho e forma-pagamento}
+	/buscar/{id}
+	/listar
+	
