@@ -20,7 +20,6 @@ public class Produto {
     @Column(nullable = false)
     private float valor;
 
-    
 
 
     public Produto(ProdutoForm produtoForm){

@@ -1,15 +1,18 @@
 package com.unipe.api2.service;
 
 import com.unipe.api2.dto.form.Login;
+import com.unipe.api2.dto.form.UsuarioAtualizaDadosForm;
 import com.unipe.api2.dto.form.UsuarioForm;
 import com.unipe.api2.model.Usuario;
 import com.unipe.api2.repository.UsuarioRepository;
+import com.unipe.api2.utils.RequestResposta;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -22,43 +25,82 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Usuario buscarPorId(int id){
-        return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public RequestResposta buscarPorId(int id){
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        return usuarioOptional.isEmpty()
+                ? trataUsuarioInexistente()
+                : new RequestResposta(usuarioOptional.get(), HttpStatus.OK);
     }
 
-    public Usuario buscarPorCPF(String cpf){
-        return usuarioRepository.findUsuarioByCpf(cpf).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public RequestResposta buscarPorCPF(String cpf){
+        Optional<Usuario> usuarioOptional = usuarioRepository.findUsuarioByCpf(cpf);
+        return usuarioOptional.isEmpty()
+                ? trataUsuarioInexistente()
+                : new RequestResposta(usuarioOptional.get(), HttpStatus.OK);
     }
-    public Usuario salvar(UsuarioForm usuarioForm){
-        Usuario usuario = new Usuario(usuarioForm);
-        return usuarioRepository.save(usuario);
+    public RequestResposta salvar(UsuarioForm usuarioForm){
+        Optional<Usuario> usuarioAtual = usuarioRepository.findUsuarioByCpf(usuarioForm.getCpf());
+        return usuarioAtual.isEmpty()
+                ? new RequestResposta(usuarioRepository.save(new Usuario(usuarioForm)), HttpStatus.CREATED)
+                : new RequestResposta("Usuário já cadastrado", HttpStatus.CONFLICT);
     }
 
 
+    public RequestResposta atualizaDados(int id, UsuarioAtualizaDadosForm dadosAtualizados)  {
 
-    public Usuario atualizaDados(int id, Map<String, Object> dadosAtualizados){
+        Optional<Usuario> usuarioAtual = usuarioRepository.findById(id);
+        if (usuarioAtual.isEmpty()) {
+            return trataUsuarioInexistente();
+        }
+        Usuario usuario = usuarioAtual.get();
 
-        Usuario usuarioAtual = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        //
-        return usuarioRepository.save(usuarioAtual);
+        if (dadosAtualizados.getCpf() != null)
+            usuario.setCpf(dadosAtualizados.getCpf());
+        if (dadosAtualizados.getEmail() != null)
+            usuario.setEmail(dadosAtualizados.getEmail());
+        if (dadosAtualizados.getNomeCompleto() != null)
+            usuario.setNomeCompleto(dadosAtualizados.getNomeCompleto());
+        if (dadosAtualizados.getIdade() != 0)
+            usuario.setIdade(dadosAtualizados.getIdade());
+        if (dadosAtualizados.getUsername() != null)
+            usuario.setUsername(dadosAtualizados.getUsername());
+
+        return new RequestResposta(usuarioRepository.save(usuario), HttpStatus.CREATED);
     }
 
     @Transactional
-    public Usuario atualizaSenha(int id, String novaSenha){
-        Usuario usuarioAtual = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        usuarioAtual.setSenha(novaSenha);
-        //usuarioRepository.save(usuarioAtual);
-        return usuarioAtual;
+    public RequestResposta atualizaSenha(int id, String novaSenha){
+        Optional<Usuario> usuarioAtual = usuarioRepository.findById(id);
+        if (usuarioAtual.isEmpty()) {
+            return trataUsuarioInexistente();
+        }
+        Usuario usuario = usuarioAtual.get();
+        usuario.setSenha(novaSenha);
+        usuarioRepository.save(usuario);
+        return new RequestResposta("Senha atualizada com sucesso", HttpStatus.OK);
     }
 
-    public String login(Login login){
-        Usuario usuarioAtual = usuarioRepository.findUsuarioByUsernameAndSenha(login.getUsername(), login.getSenha()).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        return "Login realizado com sucesso";
+
+
+    public RequestResposta login(Login login){
+        Optional<Usuario> usuarioAtual = usuarioRepository.findUsuarioByUsernameAndSenha(login.getUsername(), login.getSenha());
+        return usuarioAtual.isEmpty()
+                ? trataUsuarioInexistente()
+                : new RequestResposta("Login realizado com sucesso", HttpStatus.ACCEPTED);
     }
 
 
-    public void deletar(int id){
+    public RequestResposta deletar(int id){
+        Optional<Usuario> usuarioAtual = usuarioRepository.findById(id);
+        if (usuarioAtual.isEmpty()) {
+            return trataUsuarioInexistente();
+        }
         usuarioRepository.deleteById(id);
+        return new RequestResposta("Deletado com sucesso", HttpStatus.OK);
+    }
+
+    private RequestResposta trataUsuarioInexistente() {
+        return new RequestResposta("Usuário não encontrado", HttpStatus.NOT_FOUND);
     }
 
 //    @Transactional

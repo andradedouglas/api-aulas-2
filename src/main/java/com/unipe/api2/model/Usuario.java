@@ -33,9 +33,6 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @OneToOne
-    private Carrinho carrinho;
-
 
     public Usuario(UsuarioForm usuarioForm){
         this.nomeCompleto = usuarioForm.getNomeCompleto();

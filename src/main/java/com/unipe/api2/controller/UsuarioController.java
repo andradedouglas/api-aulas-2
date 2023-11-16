@@ -1,16 +1,17 @@
 package com.unipe.api2.controller;
 
 import com.unipe.api2.dto.form.Login;
+import com.unipe.api2.dto.form.UsuarioAtualizaDadosForm;
 import com.unipe.api2.dto.form.UsuarioForm;
 import com.unipe.api2.model.Usuario;
 import com.unipe.api2.service.UsuarioService;
+import com.unipe.api2.utils.RequestResposta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/usuario")
@@ -25,40 +26,41 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable int id){
-        return new ResponseEntity<>(usuarioService.buscarPorId(id), HttpStatus.OK);
+    public ResponseEntity<Object> buscarPorId(@PathVariable int id){
+        return RequestResposta.retornar(usuarioService.buscarPorId(id));
     }
+
     @GetMapping("/busca-por-cpf/{cpf}")
-    public ResponseEntity<Usuario> buscarPorCPF(@PathVariable String cpf){
-        return new ResponseEntity<>(usuarioService.buscarPorCPF(cpf), HttpStatus.OK);
+    public ResponseEntity<Object> buscarPorCPF(@PathVariable String cpf){
+        return RequestResposta.retornar(usuarioService.buscarPorCPF(cpf));
     }
 
     @PostMapping
-    public ResponseEntity<String> criar(@RequestBody UsuarioForm usuarioForm){
-        usuarioService.salvar(usuarioForm);
-        return new ResponseEntity<>(("Usuário criado com sucesso"), HttpStatus.CREATED);
+    public ResponseEntity<Object> criar(@RequestBody UsuarioForm usuarioForm){
+        return RequestResposta.retornar(usuarioService.salvar(usuarioForm));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable int id, @RequestBody Map<String,Object> dadosAtualizados){
-        return new ResponseEntity<>(usuarioService.atualizaDados(id, dadosAtualizados), HttpStatus.OK);
+    public ResponseEntity<Object> atualizar(@PathVariable int id, @RequestBody UsuarioAtualizaDadosForm dadosAtualizados){
+        return RequestResposta.retornar(usuarioService.atualizaDados(id, dadosAtualizados));
     }
 
     @PutMapping("/{id}/nova-senha")
-    public ResponseEntity<Usuario> atualizarSenha(@PathVariable int id, @RequestBody String novaSenha) {
-        return new ResponseEntity<>(usuarioService.atualizaSenha(id, novaSenha), HttpStatus.OK);
+    public ResponseEntity<Object> atualizarSenha(@PathVariable int id, @RequestBody String novaSenha) {
+        return RequestResposta.retornar(usuarioService.atualizaSenha(id, novaSenha));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable int id){
-        usuarioService.deletar(id);
-        return new ResponseEntity<>("Deletado com sucesso", HttpStatus.NO_CONTENT);
+    public ResponseEntity<Object> deletar(@PathVariable int id){
+        return RequestResposta.retornar(usuarioService.deletar(id));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Login login ){
-        return new ResponseEntity<>(usuarioService.login(login),HttpStatus.ACCEPTED);
+    public ResponseEntity<Object> login(@RequestBody Login login ){
+        return RequestResposta.retornar(usuarioService.login(login));
     }
+
+
 
 //    @PostMapping("/{id}/comprar-ingresso/{ingressoId}")
 //    public ResponseEntity<String> compraIngresso(@PathVariable Integer id, @PathVariable Integer ingressoId){
