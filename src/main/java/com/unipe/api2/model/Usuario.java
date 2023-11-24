@@ -1,7 +1,7 @@
 package com.unipe.api2.model;
 
-import com.unipe.api2.dto.form.UsuarioAtualizaDadosForm;
-import com.unipe.api2.dto.form.UsuarioForm;
+import com.unipe.api2.dto.UsuarioAtualizaDadosForm;
+import com.unipe.api2.dto.UsuarioForm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "usuarios")
+@Table
 @Data @AllArgsConstructor @NoArgsConstructor
 public class Usuario {
     @Id
@@ -33,8 +33,17 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @OneToOne
-    private Carrinho carrinho;
+    @Column
+    private String cep;
+
+    @Column
+    private String cidade;
+
+    @Column
+    private String estado;
+
+    @Column
+    private String bairro;
 
 
     public Usuario(UsuarioForm usuarioForm){
@@ -44,6 +53,7 @@ public class Usuario {
         this.username = usuarioForm.getUsername();
         this.senha = usuarioForm.getSenha();
         this.cpf = usuarioForm.getCpf();
+        this.cep = usuarioForm.getCep();
     }
     public Usuario(UsuarioAtualizaDadosForm usuarioForm){
         this.nomeCompleto = usuarioForm.getNomeCompleto();
@@ -51,6 +61,7 @@ public class Usuario {
         this.idade = usuarioForm.getIdade();
         this.username = usuarioForm.getUsername();
         this.cpf = usuarioForm.getCpf();
+        this.cep = usuarioForm.getCep();
     }
 
 }
